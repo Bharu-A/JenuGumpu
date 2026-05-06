@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Declares the locales supported by the app.
+    Required for AppCompatDelegate.setApplicationLocales() to work on API 33+.
+-->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="kn" />
+</locale-config>

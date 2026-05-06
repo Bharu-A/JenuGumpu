@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Jenu-Gumpu</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="harvest">Harvest</string>
+    <string name="batches">Batches</string>
+    <string name="profit">Profit</string>
+    <string name="settings">Settings</string>
+</resources>

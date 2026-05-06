@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">ಜೆನು-ಗುಂಪು</string>
+    <string name="dashboard">ಡ್ಯಾಶ್‌ಬೋರ್ಡ್</string>
+    <string name="harvest">ಕೊಯ್ಲು</string>
+    <string name="batches">ಬ್ಯಾಚ್‌ಗಳು</string>
+    <string name="profit">ಲಾಭ</string>
+    <string name="settings">ಸೆಟ್ಟಿಂಗ್ಸ್</string>
+</resources>
