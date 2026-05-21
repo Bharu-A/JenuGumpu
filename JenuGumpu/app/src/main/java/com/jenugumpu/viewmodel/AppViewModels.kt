@@ -13,6 +13,7 @@ import com.jenugumpu.domain.usecase.DeleteHoneyBatchUseCase
 import com.jenugumpu.domain.usecase.GenerateBatchIdUseCase
 import com.jenugumpu.domain.usecase.GetBatchesUseCase
 import com.jenugumpu.domain.usecase.GetDashboardUseCase
+import com.jenugumpu.domain.usecase.UpdateHoneyBatchUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -103,13 +104,28 @@ class DashboardViewModel @Inject constructor(getDashboardUseCase: GetDashboardUs
 @HiltViewModel
 class BatchListViewModel @Inject constructor(
     getBatchesUseCase: GetBatchesUseCase,
-    private val deleteUseCase: DeleteHoneyBatchUseCase
+    private val deleteUseCase: DeleteHoneyBatchUseCase,
+    private val updateUseCase: UpdateHoneyBatchUseCase
 ) : ViewModel() {
     val batches = getBatchesUseCase().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private val _editingBatch = MutableStateFlow<HoneyBatch?>(null)
+    val editingBatch: StateFlow<HoneyBatch?> = _editingBatch.asStateFlow()
 
     fun deleteBatch(batch: HoneyBatch) {
         viewModelScope.launch {
             deleteUseCase(batch)
+        }
+    }
+
+    fun setEditingBatch(batch: HoneyBatch?) {
+        _editingBatch.value = batch
+    }
+
+    fun updateBatch(batch: HoneyBatch) {
+        viewModelScope.launch {
+            updateUseCase(batch)
+            _editingBatch.value = null // Close dialog
         }
     }
 }

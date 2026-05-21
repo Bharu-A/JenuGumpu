@@ -22,6 +22,10 @@ class HoneyRepositoryImpl @Inject constructor(
         dao.insert(batch.toEntity())
     }
 
+    override suspend fun updateBatch(batch: HoneyBatch) {
+        dao.update(batch.toEntity())
+    }
+
     override suspend fun deleteBatch(batch: HoneyBatch) {
         dao.delete(batch.toEntity())
     }

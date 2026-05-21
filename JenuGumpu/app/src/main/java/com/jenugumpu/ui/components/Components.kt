@@ -3,6 +3,7 @@ package com.jenugumpu.ui.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -104,7 +105,7 @@ fun EducationCard() {
 }
 
 @Composable
-fun HoneyBatchCard(batch: HoneyBatch, onDelete: (() -> Unit)? = null) {
+fun HoneyBatchCard(batch: HoneyBatch, onEdit: (() -> Unit)? = null, onDelete: (() -> Unit)? = null) {
     val date = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
         .format(Date(batch.dateEpochMillis))
 
@@ -120,13 +121,24 @@ fun HoneyBatchCard(batch: HoneyBatch, onDelete: (() -> Unit)? = null) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(batch.batchId, style = MaterialTheme.typography.titleMedium)
-                if (onDelete != null) {
-                    IconButton(onClick = onDelete) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete Batch",
-                            tint = MaterialTheme.colorScheme.error
-                        )
+                Row {
+                    if (onEdit != null) {
+                        IconButton(onClick = onEdit) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit Batch",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                    if (onDelete != null) {
+                        IconButton(onClick = onDelete) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete Batch",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
                     }
                 }
             }

@@ -14,6 +14,10 @@ class DeleteHoneyBatchUseCase @Inject constructor(private val repository: HoneyR
     suspend operator fun invoke(batch: HoneyBatch) = repository.deleteBatch(batch)
 }
 
+class UpdateHoneyBatchUseCase @Inject constructor(private val repository: HoneyRepository) {
+    suspend operator fun invoke(batch: HoneyBatch) = repository.updateBatch(batch)
+}
+
 class GetBatchesUseCase @Inject constructor(private val repository: HoneyRepository) {
     operator fun invoke(): Flow<List<HoneyBatch>> = repository.observeBatches()
 }

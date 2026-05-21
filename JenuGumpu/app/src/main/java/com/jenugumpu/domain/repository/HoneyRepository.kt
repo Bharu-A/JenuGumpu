@@ -7,6 +7,7 @@ import java.time.LocalDate
 
 interface HoneyRepository {
     suspend fun addBatch(batch: HoneyBatch)
+    suspend fun updateBatch(batch: HoneyBatch)
     suspend fun deleteBatch(batch: HoneyBatch)
     fun observeBatches(): Flow<List<HoneyBatch>>
     fun observeDashboard(): Flow<DashboardStats>

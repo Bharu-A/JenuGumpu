@@ -3,6 +3,7 @@ package com.jenugumpu.data.local.dao
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.Update
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.jenugumpu.data.local.entity.HoneyBatchEntity
@@ -12,6 +13,9 @@ import kotlinx.coroutines.flow.Flow
 interface HoneyBatchDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(batch: HoneyBatchEntity)
+
+    @Update
+    suspend fun update(batch: HoneyBatchEntity)
 
     @Delete
     suspend fun delete(batch: HoneyBatchEntity)

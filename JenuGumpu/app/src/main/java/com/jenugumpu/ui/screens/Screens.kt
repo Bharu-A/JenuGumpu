@@ -45,6 +45,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -61,6 +63,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.jenugumpu.domain.model.FloralSource
+import com.jenugumpu.domain.model.GradeColor
+import com.jenugumpu.domain.model.HoneyBatch
+import com.jenugumpu.domain.model.MoistureLevel
 import com.jenugumpu.ui.components.AppBackground
 import com.jenugumpu.ui.components.AppHeader
 import com.jenugumpu.ui.components.EducationCard
@@ -76,6 +81,7 @@ import com.jenugumpu.viewmodel.HarvestViewModel
 import com.jenugumpu.viewmodel.ProfitViewModel
 import com.jenugumpu.viewmodel.SettingsViewModel
 import java.time.LocalDate
+import java.time.ZoneId
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -186,6 +192,8 @@ fun DashboardScreen(vm: DashboardViewModel, padding: PaddingValues = PaddingValu
 @Composable
 fun BatchListScreen(vm: BatchListViewModel) {
     val itemsState by vm.batches.collectAsState()
+    val editingBatch by vm.editingBatch.collectAsState()
+
     AppBackground {
         LazyColumn(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             item {
@@ -202,13 +210,108 @@ fun BatchListScreen(vm: BatchListViewModel) {
                 items(itemsState) { batch -> 
                     HoneyBatchCard(
                         batch = batch,
+                        onEdit = { vm.setEditingBatch(batch) },
                         onDelete = { vm.deleteBatch(batch) }
                     ) 
                 }
             }
             item { EducationCard() }
         }
+
+        if (editingBatch != null) {
+            EditBatchDialog(
+                batch = editingBatch!!,
+                onDismiss = { vm.setEditingBatch(null) },
+                onSave = { updated -> vm.updateBatch(updated) }
+            )
+        }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditBatchDialog(
+    batch: HoneyBatch,
+    onDismiss: () -> Unit,
+    onSave: (HoneyBatch) -> Unit
+) {
+    val context = LocalContext.current
+    var date by remember { mutableStateOf(LocalDate.ofEpochDay(batch.dateEpochMillis / 86400000)) }
+    var location by remember { mutableStateOf(batch.location) }
+    var quantity by remember { mutableStateOf(batch.quantityKg.toString()) }
+    var floral by remember { mutableStateOf(batch.floralSource) }
+    var grade by remember { mutableStateOf(batch.gradeColor) }
+    var moisture by remember { mutableStateOf(batch.moistureLevel) }
+    var expanded by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Batch ${batch.batchId}") },
+        text = {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                item {
+                    Button(onClick = {
+                        DatePickerDialog(
+                            context,
+                            { _, y, m, d -> date = LocalDate.of(y, m + 1, d) },
+                            date.year,
+                            date.monthValue - 1,
+                            date.dayOfMonth
+                        ).show()
+                    }, modifier = Modifier.fillMaxWidth()) { Text("Date: $date") }
+                }
+                item {
+                    OutlinedTextField(location, { location = it }, label = { Text("Location") }, modifier = Modifier.fillMaxWidth())
+                }
+                item {
+                    OutlinedTextField(quantity, { quantity = it }, label = { Text("Quantity (kg)") }, modifier = Modifier.fillMaxWidth())
+                }
+                item {
+                    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+                        OutlinedTextField(
+                            value = floral.name.replace("_", " Honey"),
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Floral Source") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                            modifier = Modifier.menuAnchor().fillMaxWidth()
+                        )
+                        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                            FloralSource.entries.forEach {
+                                DropdownMenuItem(
+                                    text = { Text(it.name.replace("_", " Honey")) },
+                                    onClick = { floral = it; expanded = false }
+                                )
+                            }
+                        }
+                    }
+                }
+                item { Text("Quality", style = MaterialTheme.typography.titleMedium) }
+                item { GradeRow(grade) { grade = it } }
+                item { MoistureRow(moisture) { moisture = it } }
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                val q = quantity.toDoubleOrNull()
+                if (q != null && q > 0 && location.isNotBlank()) {
+                    onSave(
+                        batch.copy(
+                            dateEpochMillis = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+                            location = location.trim(),
+                            quantityKg = q,
+                            floralSource = floral,
+                            gradeColor = grade,
+                            moistureLevel = moisture
+                        )
+                    )
+                }
+            }) { Text("Save") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
 }
 
 @Composable
